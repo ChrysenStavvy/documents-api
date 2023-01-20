@@ -6,7 +6,8 @@ import java.util.List;
 
 public class DocumentAnnotationDao {
     public List<DocumentAnnotationEntity> getAnnotationsForDocument(int documentId) {
-        DocumentAnnotationEntity documentAnnotationEntity = new DocumentAnnotationEntity(documentId);
+        DocumentAnnotationEntity documentAnnotationEntity =
+                new DocumentAnnotationEntity(1, documentId, "content");
         return List.of(documentAnnotationEntity);
     }
 }

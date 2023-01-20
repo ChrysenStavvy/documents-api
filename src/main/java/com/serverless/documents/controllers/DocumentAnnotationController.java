@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
 import java.util.List;
 @RestController
 @RequestMapping("/api/documents/annotations")
@@ -21,7 +19,7 @@ public class DocumentAnnotationController {
     @GetMapping("/{documentId}")
     public ResponseEntity<List<DocumentAnnotationResponseBody>> getAnnotations(
             @PathVariable(value="documentId") int documentId
-    ) throws IOException {
+    ) {
         List<DocumentAnnotation> documentAnnotations = documentAnnotationService.getAnnotations(documentId);
         List<DocumentAnnotationResponseBody> annotationsResponse = documentAnnotations.stream()
                 .map(DocumentAnnotation::annotationDomainToView)

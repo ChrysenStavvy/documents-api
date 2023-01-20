@@ -1,1 +1,1 @@
-rootProject.name = "documents_api"
+rootProject.name = "documents-api"

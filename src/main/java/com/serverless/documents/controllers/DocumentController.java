@@ -10,8 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/api/documents")
 public class DocumentController {
@@ -20,15 +18,16 @@ public class DocumentController {
     private DocumentService documentService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentResponseBody> getDocumentById(@PathVariable(value="id") int id) throws IOException {
+    public ResponseEntity<DocumentResponseBody> getDocumentById(@PathVariable(value="id") int id) {
         Document document = documentService.getById(id);
         return ResponseEntity.ok(document.documentDomainToView());
     }
 
     @PostMapping(value="/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public int addDocument(@RequestBody DocumentRequestBody document) {
+    public ResponseEntity<Integer> addDocument(@RequestBody DocumentRequestBody document) {
         Document domainDocument = document.documentRequestToDomain();
-        return documentService.add(domainDocument);
+        Integer document_id = documentService.add(domainDocument);
+        return ResponseEntity.ok(document_id);
     }
 }
 

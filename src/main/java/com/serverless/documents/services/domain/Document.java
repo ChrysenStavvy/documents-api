@@ -5,11 +5,7 @@ import com.serverless.documents.repositories.orm.DocumentEntity;
 
 public record Document (int id, String name, byte[] bytes) {
     public DocumentEntity documentDomainToOrm() {
-        DocumentEntity ormDocument = new DocumentEntity();
-        ormDocument.setId(this.id);
-        ormDocument.setName(this.name);
-        ormDocument.setBytes(this.bytes);
-        return ormDocument;
+        return new DocumentEntity(this.id, this.name, this.bytes);
     }
 
     public DocumentResponseBody documentDomainToView() {
