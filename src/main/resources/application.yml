@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    active: ${ENVIRONMENT:local}
+  jooq:
+    sql-dialect: Postgres
+logging:
+  level:
+    root: INFO
+    com.openhtmltopdf: ERROR
+    org.apache: ERROR
+    org.thymeleaf: ERROR
+    com.amazonaws: ERROR

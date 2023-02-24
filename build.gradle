@@ -1,0 +1,107 @@
+buildscript {
+	repositories {
+		mavenLocal()
+	}
+
+	dependencies {
+		classpath 'org.jooq:jooq-codegen:3.17.6'
+		classpath 'org.postgresql:postgresql:42.5.1'
+	}
+}
+
+plugins {
+	id "org.springframework.boot" version "3.0.0"
+	id 'io.spring.dependency-management' version '1.1.0'
+	id 'java'
+}
+
+
+repositories {
+	mavenCentral()
+}
+
+ext { // shared variables that can be used throughout your project and sub projects
+	jooqGenPath = 'src/generated/jooq'
+}
+
+
+ext {
+	javaSourceCompatibility = JavaVersion.VERSION_17
+	javaTargetCompatibility = JavaVersion.VERSION_17
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.17'
+	implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.7.0'
+
+	implementation 'org.jooq:jooq:3.17.6'
+	implementation 'org.springframework:spring-jdbc:6.0.4'
+	implementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.6'
+	implementation 'org.flywaydb:flyway-core'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.9.2'
+	testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.22.0'
+	testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.4.0'
+	testImplementation 'junit:junit:4.13.1'
+	testImplementation "org.testcontainers:junit-jupiter:1.17.6"
+
+	runtimeOnly 'org.postgresql:postgresql'
+}
+
+// Jooq Generation
+import org.jooq.codegen.GenerationTool
+import org.jooq.meta.jaxb.*
+
+task buildJooq {
+	if (!file("./src/generated").exists()) {
+		println("Generating jooq models")
+		GenerationTool.generate(new Configuration()
+				.withJdbc(new Jdbc().withDriver('org.postgresql.Driver')
+						.withUrl("jdbc:postgresql://localhost:5432/stavvy")
+						.withUser('postgres')
+						.withPassword('postgres'))
+				.withGenerator(new Generator()
+						.withName('org.jooq.codegen.DefaultGenerator')
+						.withDatabase(new Database().withName('org.jooq.meta.postgres.PostgresDatabase')
+								.withExcludes("flyway_schema_history")
+								.withExcludes("topology.*")
+						)
+						.withGenerate(new Generate()
+								.withPojos(true)
+								.withFluentSetters(true)
+								.withDaos(false)
+								.withRecords(false)
+								.withDeprecated(false)
+								.withRoutines(false)
+								.withTables(false)
+						)
+						.withStrategy(new Strategy().withName("org.jooq.codegen.DefaultGeneratorStrategy"))
+						.withTarget(new Target()
+								.withPackageName('com.documents.db')
+								.withDirectory("${file('.').absolutePath}/${jooqGenPath}")
+						)
+				)
+		)
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs += jooqGenPath
+		}
+	}
+}
+
+build.dependsOn buildJooq
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
